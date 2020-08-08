@@ -1,13 +1,23 @@
+import 'package:api_reqest_practice/services/note_service.dart';
 import 'package:api_reqest_practice/views/note_list.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:get_it/get_it.dart';
 
-void main() => runApp(
-      MaterialApp(
-        home: NoteList(),
-      ),
-    );
+void setupLocator() {
+  // I => instance
+  GetIt.I.registerLazySingleton(
+    () => NoteService(),
+  );
+}
+
+void main() {
+  setupLocator();
+  runApp(
+    MaterialApp(
+      home: NoteList(),
+    ),
+  );
+}
 
 //class HomePage extends StatefulWidget {
 //  @override
