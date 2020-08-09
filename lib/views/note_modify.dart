@@ -1,4 +1,5 @@
 import 'package:api_reqest_practice/models/note.dart';
+import 'package:api_reqest_practice/models/note_insert.dart';
 import 'package:api_reqest_practice/services/note_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -26,22 +27,23 @@ class _NoteModifyState extends State<NoteModify> {
 
   @override
   void initState() {
-    setState(() {
-      _isLoading = true;
-    });
-
-    noteService.getNote(widget.noteId).then((response) {
-      setState(() {
-        _isLoading = false;
-      });
-      if (response.error) {
-        errorMessage = response.errorMessage ?? 'An error occurred';
-      }
-      note = response.data;
-      _titleController.text = note.noteTitle;
-      _contentController.text = note.noteContent;
-    });
     super.initState();
+    if (isEditing) {
+      setState(() {
+        _isLoading = true;
+      });
+      noteService.getNote(widget.noteId).then((response) {
+        setState(() {
+          _isLoading = false;
+        });
+        if (response.error) {
+          errorMessage = response.errorMessage ?? 'An error occurred';
+        }
+        note = response.data;
+        _titleController.text = note.noteTitle;
+        _contentController.text = note.noteContent;
+      });
+    }
   }
 
   @override
@@ -77,8 +79,83 @@ class _NoteModifyState extends State<NoteModify> {
                     width: double.infinity,
                     child: RaisedButton(
                       color: Theme.of(context).primaryColor,
-                      onPressed: () {
-                        Navigator.pop(context);
+                      onPressed: () async {
+                        if (isEditing) {
+                          //update notes
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          final note = NoteManipulation(
+                              noteTitle: _titleController.text,
+                              noteContent: _contentController.text);
+                          final result =
+                              await noteService.updateNote(widget.noteId, note);
+
+                          final title = 'Done';
+                          final text = result.error
+                              ? (result.errorMessage ?? 'An error occurred.')
+                              : 'Your note was updated successfully';
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: Text(title),
+                              content: Text(text),
+                              actions: [
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Ok'))
+                              ],
+                            ),
+                          ).then((value) {
+                            if (result.data) {
+                              Navigator.pop(context);
+                            }
+                          });
+                        } else {
+                          //creating new note
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          final note = NoteManipulation(
+                              noteTitle: _titleController.text,
+                              noteContent: _contentController.text);
+                          final result = await noteService.createNote(note);
+
+                          final title = 'Done';
+                          final text = result.error
+                              ? (result.errorMessage ?? 'An error occurred.')
+                              : 'Your note was created successfully';
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: Text(title),
+                              content: Text(text),
+                              actions: [
+                                FlatButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Ok'))
+                              ],
+                            ),
+                          ).then((value) {
+                            if (result.data) {
+                              Navigator.pop(context);
+                            }
+                          });
+                        }
                       },
                       child: Text(
                         'Save',

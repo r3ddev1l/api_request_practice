@@ -50,7 +50,9 @@ class _NoteListState extends State<NoteList> {
             MaterialPageRoute(
               builder: (BuildContext contex) => NoteModify(),
             ),
-          );
+          ).then((_) {
+            _fetchNotes();
+          });
         },
         child: Icon(Icons.add),
       ),
@@ -80,12 +82,29 @@ class _NoteListState extends State<NoteList> {
                     direction: DismissDirection.endToStart,
                     onDismissed: (direction) {},
                     confirmDismiss: (direction) async {
-                      final deleteDecision = await showDialog(
+                      final result = await showDialog(
                         context: context,
                         builder: (BuildContext context) => NoteDelete(),
                       );
-                      print(deleteDecision);
-                      return deleteDecision;
+                      if (result) {
+                        final deleteResult = await service
+                            .deleteNote(_apiResponse.data[index].noteId);
+                        var message;
+                        if (deleteResult != null && deleteResult.data == true) {
+                          message = 'The note was deleted successfully';
+                        } else {
+                          message =
+                              deleteResult?.errorMessage ?? 'An error occurred';
+                        }
+                        Scaffold.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(message),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                      print(result);
+                      return result;
                     },
                     child: ListTile(
                       onTap: () {
@@ -96,7 +115,9 @@ class _NoteListState extends State<NoteList> {
                               noteId: _apiResponse.data[index].noteId,
                             ),
                           ),
-                        );
+                        ).then((data) {
+                          _fetchNotes();
+                        });
                       },
                       title: Text(
                         '${_apiResponse.data[index].noteTitle}',

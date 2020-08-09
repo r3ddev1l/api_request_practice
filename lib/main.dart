@@ -14,39 +14,8 @@ void main() {
   setupLocator();
   runApp(
     MaterialApp(
+      theme: ThemeData(primarySwatch: Colors.red),
       home: NoteList(),
     ),
   );
 }
-
-//class HomePage extends StatefulWidget {
-//  @override
-//  _HomePageState createState() => _HomePageState();
-//}
-//
-//class _HomePageState extends State<HomePage> {
-//  Future getData() async {
-//    http.Response response = await http.get(
-//      Uri.encodeFull("https://jsonplaceholder.typicode.com/posts"),
-//      headers: {
-//        "Accept": "application/json",
-//      },
-//    );
-//    print(response.body);
-//    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
-//    List data = json.decode(response.body);
-//    print(data[1]['title']);
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return Scaffold(
-//      body: Center(
-//        child: RaisedButton(
-//          onPressed: getData,
-//          child: Text('Get Data'),
-//        ),
-//      ),
-//    );
-//  }
-//}
